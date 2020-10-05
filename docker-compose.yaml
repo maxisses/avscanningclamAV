@@ -1,0 +1,41 @@
+version: "3"
+## https://github.com/mko-x/docker-clamav
+## https://github.com/kuanfandevops/docker-clamav
+## https://hub.docker.com/r/mkodockx/docker-clamav 
+services:
+  ## configuration of clamd to adjust eg file size is here docker exec <container-name> cat etc/clamav/clamd.conf // adjust params accordingly;
+  ## same is available for "FRESHCLAM_CONF_" to adjust av signature params and db target etc
+  clamav-server:
+    image: mkodockx/docker-clamav
+    ports:
+      - "3310:3310"
+    environment:
+      - CLAMD_CONF_MaxScanSize=400M
+      - CLAMD_CONF_MaxFileSize=400M
+      - CLAMD_CONF_PCREMaxFileSize=400M
+      - CLAMD_CONF_OnAccessMaxFileSize=400M
+  ## https://github.com/solita/clamav-rest 
+  scan-rest:
+    image: lokori/clamav-rest
+    environment:
+      - CLAMD_HOST=clamav-server
+    ports:
+      - "8080:8080"
+    depends_on:
+      - clamav-server
+  ## run tests with docker exec test-scans sh ./test1.sh
+  ## there are 9 files / scripts test0 .. test8
+  ## test0 for delfi fahrplan fails because clamd rejects it being still too big - conf has to further adjusted
+  ## run your own tests like "curl -F "name=python binary" -F "file=@./Python-3.8.3.tar.xz" localhost:8080/scan" 
+  test_files:
+    image: maxisses/testscanner
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
+    container_name: test-scans
+    depends_on:
+      - scan-rest
+    environment:
+      - REST_ENDPOINT=scan-rest
+      - REST_PORT=8080
+    command: tail -F anything
+    
