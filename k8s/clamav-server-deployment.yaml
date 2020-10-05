@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yaml
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: clamav-server
+  name: clamav-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: clamav-server
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose.yaml
+        kompose.version: 1.21.0 (992df58d8)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: clamav-server
+    spec:
+      containers:
+      - env:
+        - name: CLAMD_CONF_MaxFileSize
+          value: 400M
+        - name: CLAMD_CONF_MaxScanSize
+          value: 400M
+        - name: CLAMD_CONF_OnAccessMaxFileSize
+          value: 400M
+        - name: CLAMD_CONF_PCREMaxFileSize
+          value: 400M
+        image: mkodockx/docker-clamav
+        imagePullPolicy: ""
+        name: clamav-server
+        ports:
+        - containerPort: 3310
+        resources: {}
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes: null
+status: {}

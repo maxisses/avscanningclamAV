@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yaml
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: test-files
+  name: test-files
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: test-files
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose.yaml
+        kompose.version: 1.21.0 (992df58d8)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: test-files
+    spec:
+      containers:
+      - args:
+        - tail
+        - -F
+        - anything
+        env:
+        - name: REST_ENDPOINT
+          value: scan-rest
+        - name: REST_PORT
+          value: "8080"
+        image: maxisses/testscanner
+        imagePullPolicy: ""
+        name: test-scans
+        resources: {}
+        stdin: true
+        tty: true
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes: null
+status: {}
